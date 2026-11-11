@@ -9,7 +9,8 @@
   --ink: #111111;
   --grey: #6b6b6b;
   --grey-2: #9a9a9a;
-  --dark: #121212;
+  /* --dark: #121212; */
+  --dark:#000000;
   --dark-2: #1a1a1a;
   --dark-3: #1f1f1f;
   --line-dark: rgba(255, 255, 255, 0.08);
@@ -137,7 +138,7 @@ ul { list-style: none; }
    ========================================================= */
 .reserve {
   background: radial-gradient(ellipse 40% 50% at 50% 55%, rgba(147, 51, 234, .14), transparent 70%), var(--dark);
-  border-top: 2px solid #333;
+  /* border-top: 2px solid #333; */
 }
 .reserve-card {
   max-width: 575px; margin: 50px auto 0; border-radius: 22px; overflow: hidden;
