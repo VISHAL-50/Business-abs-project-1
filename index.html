@@ -30,7 +30,8 @@
       <a href="#" class="logo-pill"><img src="assets/logo.webp" alt="Business Scale-Up Blueprint"></a>
 
       <h2 class="hero-title">Watch This Video First</h2>
-      <div class="video-box" data-drive-id="1B0YJEiHAaiFu1p62d3DX7DwS8vbmgp_f">
+      <!-- Hero video: local file. Was Google Drive id 1B0YJEiHAaiFu1p62d3DX7DwS8vbmgp_f -->
+      <div class="video-box" data-video-src="assets/videos/ANOTHER%20WORKSHOP%20hero%20section%20.mov">
         <img src="assets/hero-video-thumbnail.jpg" alt="Watch this video first">
         <button class="play" aria-label="Play video"><svg>
             <use href="#i-play" />
@@ -702,21 +703,21 @@
       <h2 class="h-md">Learn More Here</h2>
       <div class="video-grid">
         <div>
-          <div class="vcard tall" data-drive-id="1lSoRQxZu6D0E8X_FQO7mXXeYhn3tXXnj"><img src="assets/learn-video-1.webp"
+          <div class="vcard tall" data-video-src="assets/videos/event_video_01.mp4"><img src="assets/learn-video-1.png"
               alt="My proven strategies to get high quality leads"><button class="play" aria-label="Play"><svg>
                 <use href="#i-play" />
               </svg></button><span class="views">👁 720K Views</span></div>
           <p class="vtitle">My proven strategies to get high quality leads</p>
         </div>
         <div>
-          <div class="vcard tall" data-drive-id="1Pvc9EiCxlb11REQJXqrobD646GtAaXhI"><img src="assets/learn-video-2.webp"
+          <div class="vcard tall" data-video-src="assets/videos/event_video_02.mp4"><img src="assets/learn-video-2.png"
               alt="Client attraction strategies 2025"><button class="play" aria-label="Play"><svg>
                 <use href="#i-play" />
               </svg></button><span class="views">👁 2.1M Views</span></div>
           <p class="vtitle">Client attraction strategies 2025</p>
         </div>
         <div>
-          <div class="vcard tall" data-drive-id="1gn4kbakeb5D9kD_Dyy1lKPWwMI8YJkzR"><img src="assets/learn-video-3.webp"
+          <div class="vcard tall" data-video-src="assets/videos/event_video_03.mp4"><img src="assets/learn-video-3.png"
               alt="Creating a high-ticket offer like a pro"><button class="play" aria-label="Play"><svg>
                 <use href="#i-play" />
               </svg></button><span class="views">👁 1.9M Views</span></div>
@@ -940,6 +941,8 @@
   </div>
 
   <script src="js/main.js"></script>
+  <!-- Registration popup + Firestore + OTP (ES module, so it can import Firebase) -->
+  <script type="module" src="js/lead-form.js"></script>
 </body>
 
 </html>

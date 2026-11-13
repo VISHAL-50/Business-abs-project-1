@@ -1,0 +1,8 @@
+# Video files are too large for git (the hero .mov alone is ~119 MB; GitHub rejects files over 100 MB).
+# Upload them to the hosting server separately. Images in assets/videos (thumbnails) are still committed.
+*.mp4
+*.mov
+*.webm
+*.m4v
+*.avi
+*.mkv

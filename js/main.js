@@ -12,6 +12,21 @@
     });
   });
 
+  /* ---------- Local videos: click thumbnail → play the file from assets/videos ----------
+     Add data-video-src="assets/videos/FILE.mp4" to any box that has a .play button.
+     The video only starts downloading after the click, so the page itself stays fast. */
+  document.querySelectorAll('[data-video-src]').forEach(function (box) {
+    box.querySelector('.play').addEventListener('click', function () {
+      var video = document.createElement('video');
+      video.src = box.dataset.videoSrc;
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      box.innerHTML = '';
+      box.appendChild(video);
+    });
+  });
+
   /* ---------- Countdown (22 Nov 2026, 10:00 AM IST) ---------- */
   var target = new Date('2026-11-22T10:00:00+05:30').getTime();
   var cd = {};
@@ -125,163 +140,6 @@
         item.classList.add('open');
         ans.style.maxHeight = ans.scrollHeight + 'px';
       }
-    });
-  });
-
-  /* ---------- Popup: Q1 → Q2 → Details → OTP → thank-you.html ---------- */
-  var THANK_YOU_URL = 'thank-you.html';
-  var RESEND_SECONDS = 30;
-
-  /* === BACKEND HOOKS ===
-     Right now these are DEMO functions (no real SMS is sent, any 6 digits are accepted).
-     Replace the bodies with calls to your SMS/OTP provider (MSG91, Twilio, 2Factor, Firebase…)
-     through your own server. Both must return a Promise. */
-  function sendOtp(lead) {
-    console.log('[DEMO] sendOtp →', lead);
-    // return fetch('/api/send-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead) });
-    return Promise.resolve();
-  }
-  function verifyOtp(lead, code) {
-    console.log('[DEMO] verifyOtp →', lead.phone, code);
-    // return fetch('/api/verify-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: lead.phone, code: code }) })
-    //   .then(function (r) { return r.ok; });
-    return Promise.resolve(/^\d{6}$/.test(code));
-  }
-
-  var modal = document.getElementById('qualifyModal');
-  var form = document.getElementById('qualifyForm');
-  var steps = form.querySelectorAll('.q');
-  var otpInputs = form.querySelectorAll('[data-otp] input');
-  var resendBtn = form.querySelector('[data-resend]');
-  var resendLabel = form.querySelector('[data-resend-timer]');
-  var resendTimer = null;
-  var lead = {};
-
-  function stepEl(n) { return form.querySelector('.q[data-step="' + n + '"]'); }
-  function setError(n, msg) { stepEl(n).querySelector('.q-error').textContent = msg || ''; }
-  function showStep(n) {
-    steps.forEach(function (s) { s.hidden = Number(s.dataset.step) !== n; });
-    var first = stepEl(n).querySelector('input:not([type=radio])');
-    if (first) setTimeout(function () { first.focus(); }, 50);
-  }
-  function openModal(e) {
-    if (e) e.preventDefault();
-    form.reset();
-    form.querySelectorAll('.q-error').forEach(function (el) { el.textContent = ''; });
-    showStep(1);
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeModal() {
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  function setLoading(btn, on, text) {
-    if (on) { btn.dataset.label = btn.textContent; btn.textContent = text; btn.disabled = true; }
-    else { btn.textContent = btn.dataset.label || btn.textContent; btn.disabled = false; }
-  }
-
-  document.querySelectorAll('[data-popup]').forEach(function (btn) {
-    btn.addEventListener('click', openModal);
-  });
-  modal.querySelector('.modal-close').addEventListener('click', closeModal);
-  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
-
-  // Step 1 & 2: Yes/No questions
-  function radioStep(n, name) {
-    if (!form.querySelector('input[name="' + name + '"]:checked')) {
-      setError(n, 'Please select Yes or No to continue.');
-      return false;
-    }
-    setError(n, '');
-    return true;
-  }
-  stepEl(1).querySelector('[data-next]').addEventListener('click', function () {
-    if (radioStep(1, 'gst')) showStep(2);
-  });
-  stepEl(2).querySelector('[data-next]').addEventListener('click', function () {
-    if (radioStep(2, 'turnover')) showStep(3);
-  });
-
-  // Step 3: details → send OTP
-  form.phone.addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').slice(0, 10); });
-  stepEl(3).querySelector('[data-next]').addEventListener('click', function () {
-    var btn = this;
-    var name = form.name.value.trim();
-    var email = form.email.value.trim();
-    var phone = form.phone.value.trim();
-    if (name.length < 2) return setError(3, 'Please enter your full name.');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError(3, 'Please enter a valid email address.');
-    if (!/^[6-9]\d{9}$/.test(phone)) return setError(3, 'Please enter a valid 10-digit mobile number.');
-    setError(3, '');
-
-    lead = { name: name, email: email, phone: '+91' + phone, gst: form.gst.value, turnover: form.turnover.value };
-    setLoading(btn, true, 'Sending code…');
-    sendOtp(lead).then(function () {
-      setLoading(btn, false);
-      form.querySelector('[data-phone-label]').textContent = '+91 ' + phone;
-      otpInputs.forEach(function (i) { i.value = ''; });
-      setError(4, '');
-      startResendTimer();
-      showStep(4);
-    }).catch(function () {
-      setLoading(btn, false);
-      setError(3, 'Could not send the code. Please try again.');
-    });
-  });
-
-  form.querySelector('[data-back]').addEventListener('click', function () { showStep(3); });
-
-  // OTP boxes: auto-advance, backspace, paste
-  otpInputs.forEach(function (input, i) {
-    input.addEventListener('input', function () {
-      input.value = input.value.replace(/\D/g, '').slice(-1);
-      if (input.value && otpInputs[i + 1]) otpInputs[i + 1].focus();
-    });
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Backspace' && !input.value && otpInputs[i - 1]) otpInputs[i - 1].focus();
-    });
-    input.addEventListener('paste', function (e) {
-      var digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
-      if (!digits) return;
-      e.preventDefault();
-      digits.split('').forEach(function (d, k) { if (otpInputs[k]) otpInputs[k].value = d; });
-      otpInputs[Math.min(digits.length, 6) - 1].focus();
-    });
-  });
-
-  function startResendTimer() {
-    var left = RESEND_SECONDS;
-    resendBtn.disabled = true;
-    clearInterval(resendTimer);
-    resendLabel.textContent = '(' + left + 's)';
-    resendTimer = setInterval(function () {
-      left -= 1;
-      resendLabel.textContent = left > 0 ? '(' + left + 's)' : '';
-      if (left <= 0) { clearInterval(resendTimer); resendBtn.disabled = false; }
-    }, 1000);
-  }
-  resendBtn.addEventListener('click', function () {
-    sendOtp(lead).then(startResendTimer);
-  });
-
-  // Step 4: verify → redirect to thank-you page
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (stepEl(4).hidden) return; // Enter key on earlier steps does nothing
-    var code = Array.prototype.map.call(otpInputs, function (i) { return i.value; }).join('');
-    if (code.length !== 6) return setError(4, 'Please enter the 6-digit code.');
-    var btn = form.querySelector('button[type=submit]');
-    setLoading(btn, true, 'Verifying…');
-    verifyOtp(lead, code).then(function (ok) {
-      setLoading(btn, false);
-      if (!ok) return setError(4, 'That code is incorrect. Please try again.');
-      try { sessionStorage.setItem('bsb_lead', JSON.stringify(lead)); } catch (err) { }
-      window.location.href = THANK_YOU_URL + '?name=' + encodeURIComponent(lead.name.split(' ')[0]);
-    }).catch(function () {
-      setLoading(btn, false);
-      setError(4, 'Verification failed. Please try again.');
     });
   });
 })();
